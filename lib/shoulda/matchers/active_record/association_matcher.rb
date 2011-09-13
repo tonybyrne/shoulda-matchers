@@ -5,6 +5,7 @@ module Shoulda # :nodoc:
       # Ensure that the belongs_to relationship exists.
       #
       #   it { should belong_to(:parent) }
+      #   it { should belong_to(:parent).class_name('Parent') }
       #
       def belong_to(name)
         AssociationMatcher.new(:belongs_to, name)
@@ -68,6 +69,11 @@ module Shoulda # :nodoc:
           self
         end
 
+        def class_name(class_name)
+          @class_name = class_name
+          self
+        end
+
         def order(order)
           @order = order
           self
@@ -80,6 +86,7 @@ module Shoulda # :nodoc:
             foreign_key_exists? &&
             through_association_valid? &&
             dependent_correct? &&
+            class_name_correct? &&
             order_correct? &&
             join_table_exists?
         end
@@ -162,6 +169,15 @@ module Shoulda # :nodoc:
             true
           else
             @missing = "#{@name} should have #{@dependent} dependency"
+            false
+          end
+        end
+
+        def class_name_correct?
+          if @class_name.nil? || @class_name.to_s == reflection.options[:class_name].to_s
+            true
+          else
+            @missing = "#{@name} should have #{@class_name} class_name"
             false
           end
         end

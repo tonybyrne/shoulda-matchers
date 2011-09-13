@@ -67,6 +67,23 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
       end
       Child.new.should_not @matcher.dependent(:destroy)
     end
+
+    it "should accept an association with a valid :class_name option" do
+      define_model :parent, :class_name => 'ParentClass'
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent, :class_name => 'ParentClass'
+      end
+      Child.new.should @matcher.class_name('ParentClass')
+    end
+
+    it "should reject an association with a bad :class_name option" do
+      define_model :parent, :class_name => 'ParentClass'
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent
+      end
+      Child.new.should_not @matcher.class_name('ParentClass')
+    end
+
   end
 
   context "have_many" do
@@ -161,6 +178,22 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
       Parent.new.should_not @matcher.dependent(:destroy)
     end
 
+    it "should accept an association with a valid :class_name option" do
+      define_model :child_class, :parent_id => :integer
+      define_model :parent do
+        has_many :children, :class_name => 'ChildClass'
+      end
+      Parent.new.should @matcher.class_name('ChildClass')
+    end
+
+    it "should reject an association with a bad :class_name option" do
+      define_model :child, :parent_id => :integer
+      define_model :parent do
+        has_many :children
+      end
+      Parent.new.should_not @matcher.class_name('ChildClass')
+    end
+
     it "should accept an association with a valid :order option" do
       define_model :child, :parent_id => :integer
       define_model :parent do
@@ -232,6 +265,22 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
         has_one :detail
       end
       Person.new.should_not @matcher.dependent(:destroy)
+    end
+
+    it "should accept an association with a valid :class_name option" do
+      define_model :person_detail, :person_id => :integer
+      define_model :person do
+        has_one :detail, :class_name => 'PersonDetail'
+      end
+      Person.new.should @matcher.class_name('PersonDetail')
+    end
+
+    it "should reject an association with a bad :class_name option" do
+      define_model :detail, :person_id => :integer
+      define_model :person do
+        has_one :detail
+      end
+      Person.new.should_not @matcher.class_name('PersonDetail')
     end
 
     it "should accept an association with a valid :order option" do
